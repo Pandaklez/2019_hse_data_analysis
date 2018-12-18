@@ -20,10 +20,12 @@ data_frame(x = 1:100,
 k <- integrate(dlnorm, mean = 3, sd = 0.5, lower = 25, upper = 50)
 k$value
 ```
-###1.2
+### 1.2
 ```{r}
-low <- quantile(dlnorm(0:100, mean = 3, sd = 0.5), 0.1) 
-up <- quantile(dlnorm(0:100, mean = 3, sd = 0.5), 0.9)
-k <- integrate(dlnorm, mean = 3, sd = 0.5, lower = low, upper = up)
-k$value
+func <- function(x){
+  dlnorm(x = x, mean = 3, sd = 0.5)
+  }
+lower <- qlnorm(0.1, mean = 3, sd = 0.5)
+upper <- qlnorm(0.9, mean = 3, sd = 0.5)
+integrate(func, lower, upper)$value
 ```
