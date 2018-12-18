@@ -1,0 +1,29 @@
+---
+title: "hw1"
+author: "Ann Klezovich"
+date: '18 декабря 2018 г '
+output: html_document
+---
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+data_frame(x = 1:100,
+           PDF = dlnorm(x = x, mean = 3, sd = 0.5)) %>% 
+  ggplot(aes(x, PDF))+
+  geom_point()+
+  geom_line()+
+  labs(title = "PDF логнормального распределения (μ = 3, sd = 0.5)")
+```
+###1.1
+```{r}
+k <- integrate(dlnorm, mean = 3, sd = 0.5, lower = 25, upper = 50)
+k$value
+```
+###1.2
+```{r}
+low <- quantile(dlnorm(0:100, mean = 3, sd = 0.5), 0.1) 
+up <- quantile(dlnorm(0:100, mean = 3, sd = 0.5), 0.9)
+k <- integrate(dlnorm, mean = 3, sd = 0.5, lower = low, upper = up)
+k$value
+```
