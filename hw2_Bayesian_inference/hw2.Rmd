@@ -1,0 +1,28 @@
+---
+title: "Bayesian inference"
+author: "Ann Klezovich"
+date: '25 декабря 2018 г '
+output: html_document
+---
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+```
+
+Посчитайте долю, которую составляет согласные от всего фонологического набора каждого языка и выведите в консоль название языка, в котором эта доля максимальна
+
+```{r}
+data <- read.csv("hw2_phoible.csv", encoding = "UTF-8", sep = ",")
+length(data$language)
+```
+
+###2.1
+```{r}
+data$newcolumn<-data$consonants / data$phonemes
+data[which.max(data$newcolumn),]$language
+```
+
+###2.2
+```{r}
+```
