@@ -14,14 +14,11 @@ library(tidyverse)
 
 ```{r}
 data <- read.csv("hw2_phoible.csv", encoding = "UTF-8", sep = ",")
-length(data$language)
-print(length(unique(data$language)))
-data <- data[!duplicated(data), ]
 ```
 
 ###2.1
 ```{r}
-data$newcolumn<-data$consonants / data$phonemes
+data$newcolumn <- data$consonants / data$phonemes
 data[which.max(data$newcolumn), "language"]
 ```
 Проведите байесовский апдейт наблюдений каждого языка, используя в качестве априорного распределения бета распределение с параметрами α = 9.300246, и β = 4.4545. Посчитайте модуль разницы между апостериорной долей и изначальной долей представленной в данных. В консоль выведите 6 языков с наибольшей разницей.
@@ -35,61 +32,11 @@ data_frame(x = data$newcolumn,
   ggplot(aes(x, density))+
   geom_line()
 ```
+
 ###2.2
 ```{r}
-# likelihood
-heads <- data$consonants
-tails <- data$phonemes - data$consonants
-get_likelihood_df <- function(beta_distr, heads, tails) {
-  likelihood.vals <- c()
-  i <- 1
-  for (cur.theta.val in beta_distr) {
-    likelihood.vals <- 
-      c(likelihood.vals, 
-        (cur.theta.val^heads[[i]])*(1-cur.theta.val)^(tails[[i]]))
-    i <- i + 1
-  }
-  likelihood.df <- data_frame(theta = data$newcolumn,
-                              likelihood = likelihood.vals,
-                              languages = data$language)
-  likelihood.df
-}
-likelihood.df <- get_likelihood_df(beta_distr, heads, tails)
-head(likelihood.df)
-likelihood.df[which.max(likelihood.df$theta), "languages"]
+data$inference <- (data$consonants + alpha)/(data$phonemes + beta + alpha)
+# length(data$newcolumn - data$inference)
+data$abs <- abs(data$newcolumn - data$inference)
+arrange(data, desc(abs))[1:6,]$language
 ```
-
-```{r}
-# prior turn to dataframe
-prior <- data_frame(theta = data$newcolumn,
-                    prior = beta_distr)
-head(prior)
-```
-
-```{r}
-# posterior
-get_posterior_df <- function(likelihood.df, prior.distr.df) {
-
-  marg.likelihood <- sum(likelihood.df[["likelihood"]])
-  
-  posterior.df <- 
-    likelihood.df %>%
-    left_join(prior.distr.df) %>%
-    mutate(marg_likelihood = marg.likelihood) %>%
-    mutate(post_prob = (likelihood * prior) / marg.likelihood)
-  posterior.df[!duplicated(posterior.df), ]
-}
-
-posterior <- get_posterior_df(likelihood.df, prior)
-```
-
-```{r}
-length(posterior$languages)
-length(data$language)
-```
-###2.2
-```{r}
-posterior$abs <- abs(posterior$post_prob - posterior$theta)
-arrange(posterior, desc(abs))[1:6,]$languages
-```
-
