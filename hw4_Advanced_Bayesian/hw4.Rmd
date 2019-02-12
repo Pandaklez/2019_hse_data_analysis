@@ -1,0 +1,51 @@
+---
+title: "hw4"
+author: "Ann Klezovich"
+date: '12 февраля 2019 г '
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+```
+
+```{r}
+coretta <- read_csv("hw4_caretta.csv")
+summary(coretta)
+```
+
+### 4.1
+```{r}
+trim_mean <- mean(coretta$vowel.dur, trim=0.10)
+stddev <- sd(coretta$vowel.dur)
+sd_data <- mean(coretta$vowel.dur[coretta$speaker=='brs02'])
+mean_data <- sd(coretta$vowel.dur[coretta$speaker=='brs02'])
+
+coretta %>% 
+  filter(speaker == "brs02") %>%
+  group_by(vowel.dur) %>% 
+  mutate(sd_post = (1/stddev+1/sd_data)^(-1),
+         mean_post = weighted.mean(c(trim_mean,mean_data),
+                                   c(1/stddev,1/sd_data))) ->
+  posterior
+posterior[, c(3, 4)]
+```
+
+### 4.2
+```{r}
+sd_data <- mean(coretta$vowel.dur[coretta$speaker=="tt01"])
+mean_data <- sd(coretta$vowel.dur[coretta$speaker=="tt01"])
+coretta %>% 
+  filter(speaker == "tt01") %>%
+  group_by(vowel.dur) %>% 
+  mutate(sd_post = (1/stddev+1/sd_data)^(-1),
+         mean_post = weighted.mean(c(trim_mean,mean_data),
+                                   c(1/stddev,1/sd_data)),
+         cred_int_l = qbeta(.05, mean_post, sd_post),
+         cred_int_h = qbeta(.95, mean_post, sd_post)) ->
+  post
+post[, c(5, 6)]
+```
+
